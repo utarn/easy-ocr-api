@@ -36,7 +36,7 @@ def ocr():
             segment_length = (top_right[0] - top_left[0]) / 10  # Length of each segment
 
             for i in range(10):
-                if i % 2 == 1:  # Draw only on even segments (0-indexed)
+                if i % 3 != 1:  # Draw only on even segments (0-indexed)
                     start_x = int(top_left[0] + i * segment_length)
                     end_x = int(start_x + segment_length)
 
