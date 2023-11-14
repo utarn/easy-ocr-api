@@ -16,9 +16,10 @@ RUN python preload_easyocr.py
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-# Define environment variable
-ENV NAME OCR-App
 
-# Run app.py when the container launches
-CMD ["python", "./app.py"]
+# Define environment variables
+ENV FLASK_APP app.py
+ENV FLASK_RUN_HOST 0.0.0.0
 
+# Run the application with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
