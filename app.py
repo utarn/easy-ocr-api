@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import easyocr
 import base64
 import numpy as np
 import cv2
 from PIL import Image
 import dlib
+import io
 
 # Load Dlib's pre-trained facial landmark predictor
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -85,14 +86,30 @@ def ocr():
         img_np = detect_eyes(img_np)
         # Convert the modified image back to base64
         _, buffer = cv2.imencode('.jpg', img_np)
-        img_base64 = base64.b64encode(buffer).decode()
+
+        #img_base64 = base64.b64encode(buffer).decode()
 
         # Convert results to a simple list
-        text_list = [text for _, text, _ in results]
+        #text_list = [text for _, text, _ in results]
 
         # Return the results along with the modified image
         # return jsonify({"ocr_result": text_list, "image": img_base64})
-        return jsonify({"image": img_base64})
+        #return jsonify({"image": img_base64})
+        img_bytes = buffer.tobytes()
+
+        # Set the content type and headers for the response
+        response_headers = {
+            'Content-Type': 'image/jpeg',
+            'Content-Disposition': 'attachment; filename=image.jpg',
+        }
+
+        return send_file(
+            io.BytesIO(img_bytes),
+            mimetype='image/jpeg',
+            as_attachment=True,
+            download_name='image.jpg'
+        )
+
     except Exception as e:
         return jsonify({"error": str(e)})
 
