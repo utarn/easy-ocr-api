@@ -4,6 +4,40 @@ import base64
 import numpy as np
 import cv2
 from PIL import Image
+import dlib
+
+# Load Dlib's pre-trained facial landmark predictor
+predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+detector = dlib.get_frontal_face_detector()
+
+def detect_eyes(img_np):
+    gray = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY)
+    faces = detector(gray)
+
+    for face in faces:
+        landmarks = predictor(gray, face)
+
+        # Initialize min and max coordinates for eyes
+        min_x, min_y = float('inf'), float('inf')
+        max_x, max_y = float('-inf'), float('-inf')
+
+        # Loop through each eye landmark (36 to 47)
+        for n in range(36, 48):
+            x = landmarks.part(n).x
+            y = landmarks.part(n).y
+            if x < min_x:
+                min_x = x
+            if y < min_y:
+                min_y = y
+            if x > max_x:
+                max_x = x
+            if y > max_y:
+                max_y = y
+
+        # Draw a black rectangle that covers both eyes
+        cv2.rectangle(img_np, (min_x, min_y), (max_x, max_y), (0, 0, 0), -1)
+
+    return img_np
 
 app = Flask(__name__)
 reader = easyocr.Reader(['en','th'], download_enabled=False)  # Assuming English text
@@ -36,7 +70,7 @@ def ocr():
             segment_length = (top_right[0] - top_left[0]) / 10  # Length of each segment
 
             for i in range(10):
-                if i % 3 != 1:  # Draw only on even segments (0-indexed)
+                if i % 2 == 1:  # Draw only on even segments (0-indexed)
                     start_x = int(top_left[0] + i * segment_length)
                     end_x = int(start_x + segment_length)
 
@@ -48,6 +82,7 @@ def ocr():
         # Blend the overlay (50% opacity)
         # cv2.addWeighted(overlay, 0.5, img_np, 0.5, 0, img_np)
 
+        img_np = detect_eyes(img_np)
         # Convert the modified image back to base64
         _, buffer = cv2.imencode('.jpg', img_np)
         img_base64 = base64.b64encode(buffer).decode()

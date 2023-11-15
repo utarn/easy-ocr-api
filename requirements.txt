@@ -3,3 +3,4 @@ easyocr
 Pillow
 opencv-python-headless==4.5.4.60
 gunicorn
+dlib
