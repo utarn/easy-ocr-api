@@ -128,8 +128,9 @@ def process_text_endpoint():
 
         processed_texts = []
         for (bbox, text, prob) in results:
-            processed_text = process_text(text)
-            processed_texts.append(processed_text)
+            #processed_text = process_text(text)
+            #processed_texts.append(processed_text)
+            processed_texts.append(text)
 
         final_result = ' '.join(processed_texts)
         return jsonify({'text': final_result})
