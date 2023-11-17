@@ -8,3 +8,4 @@ pythainlp[spell]
 pythainlp[tokenize]
 textblob
 deepcut
+pyzbar

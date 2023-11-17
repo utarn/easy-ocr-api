@@ -1,6 +1,6 @@
 import base64
 import io
-
+from pyzbar.pyzbar import decode
 import cv2
 import dlib
 import easyocr
@@ -102,6 +102,21 @@ def detect_eyes(img_np):
 
     return img_np
 
+def detect_and_cover_barcodes(img_np):
+    # Load the image using OpenCV
+
+    # Decode the barcodes in the image
+    decoded_objects = decode(img_np)
+
+    # Loop through all the detected barcodes/QR codes
+    for obj in decoded_objects:
+        # Get the barcode's location and dimensions
+        x, y, w, h = obj.rect
+
+        # Draw a black rectangle over the barcode
+        cv2.rectangle(img_np, (x, y), (x + w, y + h), (0, 0, 0), -1)
+    return img_np
+
 app = Flask(__name__)
 reader = easyocr.Reader(['en','th'], download_enabled=False)  # Assuming English text
 
@@ -178,6 +193,7 @@ def ocr():
         # cv2.addWeighted(overlay, 0.5, img_np, 0.5, 0, img_np)
 
         img_np = detect_eyes(img_np)
+        img_np = detect_and_cover_barcodes(img_np)
         # Convert the modified image back to base64
         _, buffer = cv2.imencode('.jpg', img_np)
 
