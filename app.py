@@ -140,9 +140,10 @@ def process_text_endpoint():
 
         # OCR processing
         results = reader.readtext(img_np)
+        sorted_results = sorted(results, key=lambda x: (x[0][0][1], x[0][0][0]))
 
         processed_texts = []
-        for (bbox, text, prob) in results:
+        for (bbox, text, prob) in sorted_results:
             #processed_text = process_text(text)
             #processed_texts.append(processed_text)
             processed_texts.append(text)
@@ -222,6 +223,14 @@ def ocr():
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    # Here you can add logic to check the health of your app
+    # For example, you can check database connectivity, etc.
+    # In this simple example, we'll just return a "healthy" status
+
+    return jsonify({"status": "healthy"}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=False)

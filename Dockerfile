@@ -17,20 +17,16 @@ WORKDIR /usr/src/app
 # Copy the current directory contents into the container
 COPY . .
 
-# Install supervisord
-RUN apt-get update && apt-get install -y supervisor \
-    && rm -rf /var/lib/apt/lists/*
-
 # Preload EasyOCR to cache models
 RUN python3 preload_easyocr.py
 
 # Set environment variables
 ENV FLASK_APP app.py
 ENV FLASK_RUN_HOST 0.0.0.0
-
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
 # Copy supervisord configuration file
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Start processes using supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
